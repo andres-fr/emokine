@@ -3,16 +3,15 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7821844.svg)](https://doi.org/10.5281/zenodo.7821844)
 
-This repository was developed for the curation of the [EmokineDataset](https://zenodo.org/record/7821844) dataset, but it can be used to curate further datasets of similar characteristics. If you use our work, please consider citing us!
+This repository was developed for the curation of the [EmokineDataset](https://zenodo.org/record/7821844) pilot dataset, but it can be used to curate further datasets of similar characteristics. If you use our work, please consider citing us!
 
 ```
 @misc{emokine,
-      title={{EMOKINE}: A Kinematic Dataset and Computational Framework for scaling up the Creation of Highly Controlled Emotional Full-Body Movement Datasets,
+      title={{EMOKINE}: A Software Package and Computational Framework for Scaling Up the Creation of Highly Controlled Emotional Full-Body Movement Datasets,
       author="Christensen, Julia F. and Fernandez, Andres and Smith, Rebecca and Michalareas, Georgios and Yazdi, Sina H. N. and Farahi, Fahima and Schmidt, Eva-Madeleine and Bahmanian, Nasimeh and Roig, Gemma",
-      year={2023},
+      year={2024},
 }
 ```
-
 
 The rest of this document provides instructions to reproduce the following actions:
 
@@ -25,7 +24,7 @@ The rest of this document provides instructions to reproduce the following actio
 7. Reproducing the `technical validation` statistics from our paper (optional).
 
 
-Note that we use the `EmokineDataset` as basis for illustration and reproducibility purposes, but the code is released under an open source [LICENSE](LICENSE), and can be adapted, extended and applied to further data. Any feedback and contributions are welcome!
+Note that we use the `EmokineDataset` as basis for illustration and reproducibility purposes: Researchers interested in applying this software to data from other systems can do so with little to no adaptions (see explanation below in this README). Our code is released under an open source [LICENSE](LICENSE), and can be adapted, extended and applied to further data. Any feedback and contributions are welcome!
 
 
 Here are visual examples of the rendering capabilities of the library, and below are the installation and usage instructions.
@@ -100,24 +99,24 @@ $BPYTHON -m pip install lxml
 -------------------------------------------------------------------------------
 # The `EmokineDataset`
 
-> :point_right: The dataset can be downloaded from [here](https://zenodo.org/record/7821844).
+> :point_right: The pilot dataset can be downloaded from [here](https://zenodo.org/record/7821844).
 
-`EmokineDataset` features a single dancer performing 63 short sequences, which have been recorded and analyzed in different ways. The dataset is organized in 3 folders:
+`EmokineDataset` features a single dancer performing 63 short sequences, which have been recorded and analyzed in different ways. This pilot dataset is organized in 3 folders:
 * `Stimuli`: The sequences are presented in 4 visual presentations that can be used as stimulus in observer experiments:
   1. `Silhouette`: Videos with a white silhouette of the dancer on black background.
   2. `FLD` (Full-Light Display): video recordings with the performer's face blurred out.
   3. `PLD` (Point-Light Display): videos featuring a black background with white circles corresponding to the selected body landmarks.
   4. `Avatar`: Videos produced by the `XSENS` motion capture propietary software, featuring a robot-like avatar performing the captured movements on a light blue background.
-* `Data`: In order to facilitate computation and analysis of the stimuli, the dataset also includes several data formats:
+* `Data`: In order to facilitate computation and analysis of the stimuli, this pilot dataset also includes several data formats:
   1. `MVNX`: Raw motion capture data directly recorded from the XSENS motion capture system.
   2. `CSV`: Translation of a subset of the `MVNX` sequences into `CSV`, included for easier integration with mainstream analysis software tools). The subset includes the following features: `acceleration`, `angularAcceleration`, `angularVelocity`, `centerOfMass`, `footContacts`, `orientation`, `position` and `velocity`.
   3. `CamPos`: While the MVNX provides 3D positions with respect to a global frame of reference, the `CamPos` [JSON](https://www.json.org/json-en.html) files represent the `position` from the perspective of the camera used to render the `PLD` videos. Specifically, their 3D positions are given with respect to the camera as `(x, y, z)`, where `(x, y)` go from `(0, 0)` (left, bottom) to `(1, 1)` (right, top), and `z` is the distance between the camera and the point in meters. It can be useful to get a 2-dimensional projection of the dancer position (simply ignore `z`).
   4. `Kinematic`: Analysis of a selection of relevant kinematic features, using information from `MVNX`, `Silhouette` and `CamPos`, provided in tabular form.
-* `Validation`: Data and experiments reported in our paper as part of the dataset validation, to support its meaningfulness and usefulness for downstream tasks.
-  1. `TechVal`: A collection of plots presenting relevant statistics of the dataset.
+* `Validation`: Data and experiments reported in our paper as part of the pilot dataset validation, to support its meaningfulness and usefulness for downstream tasks.
+  1. `TechVal`: A collection of plots presenting relevant statistics of the pilot dataset.
   2. `ObserverExperiment`: Results in tabular form of an online study conducted with human participants, tasked to recognize emotions of the stimuli and rate their beauty.
 
-More specifically, the 63 unique sequences are divided into 9 unique choreographies, each one being performed once as an explanation, and then 6 times with different intended emotions (angry, content, fearful, joy, neutral and sad). Once downloaded, the dataset should have the following structure:
+More specifically, the 63 unique sequences are divided into 9 unique choreographies, each one being performed once as an explanation, and then 6 times with different intended emotions (angry, content, fearful, joy, neutral and sad). Once downloaded, the pilot dataset should have the following structure:
 
 ```
 EmokineDataset
@@ -155,11 +154,13 @@ Where each `<MODALITY>` of the stimuli, `MVNX`,  `CamPos` and `Kinematic` have t
 └── <MODALITY>_seq9_sad.<EXTENSION>
 ```
 
-The `CSV` directory is slightly different, because instead of a single file for each `seq` and `emotion`, it features a folder containing a `.csv` file for each one of the 8 features being extracted (acceleration, velocity...). We refer readers to our paper for more details on the dataset and companion software.
+The `CSV` directory is slightly different, because instead of a single file for each `seq` and `emotion`, it features a folder containing a `.csv` file for each one of the 8 features being extracted (acceleration, velocity...). We refer readers to our paper for more details on the data and companion software.
 
 
 -------------------------------------------------------------------------------
 # Using the `emokine` software
+
+> :point_right: Although the [`EmokineDataset`](https://zenodo.org/record/7821844) pilot dataset was recorded via the XSENS system, most of the software provided here can be directly applied to data obtained from other motion capture systems with little to no modification. Specifically, only the files `1a_mvsn_to_csv.py` and `1b_mvnx_blender.py` are relevant to the MVNX formatted data. This data is then converted to tabular format (see e.g. [positionExample.csv](assets/positionExample.csv)), which is then consumed by the remaining scripts. Researchers intending to use this software with MoCap data from other systems simply need to ensure that their data follows the same tabular format, which can be typically achieved with little to no adaptions.
 
 In this section we showcase the relevant `emokine` functionality, by running the software on the `EmokineDataset`. The purpose of each script, as well sa its input parameters that can be consulted as follows:
 
